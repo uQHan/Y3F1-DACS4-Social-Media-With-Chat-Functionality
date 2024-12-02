@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Models\Blog;
+use App\Models\Post;
 use App\Models\Bookmark;
 use App\Models\Like;
 use App\Models\User;
-use App\Services\Client\BlogService;
+use App\Services\Client\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class BlogController extends Controller
+class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $blogs = Blog::orderBy('created_at', 'desc')->paginate(5);
+        $posts = Post::orderBy('created_at', 'desc')->paginate(5);
         if ($request->expectsJson()) {
-            return response()->json($blogs);
+            return response()->json($posts);
         } else {
-            return view('client.home', compact('blogs'));
+            return view('client.home', compact('posts'));
         }
     }
 
@@ -43,12 +43,12 @@ class BlogController extends Controller
             $imagePath = null;
         }
         if ($request->expectsJson()){
-            $id = auth('sanctum')->user()->user_id;
+            $id = auth('sanctum')->user()->id;
         } else {
-            $id = auth()->user()->user_id;         
+            $id = Auth::user()->id;         
         }
-        Blog::create([
-            "user_id" => $id,
+        Post::create([
+            "creator_id" => $id,
             "title" => $request->postTitle,
             "content" => $request->postText,
             "image_url" => $imagePath,
@@ -62,27 +62,27 @@ class BlogController extends Controller
 
     public function like(Request $request)
     {
-        $blog_id = $request->blog_id;
+        $post_id = $request->post_id;
         if ($request->expectsJson() && auth('sanctum')->check()) {
-            $id = auth('sanctum')->user()->user_id;
+            $id = auth('sanctum')->user()->id;
             $user = User::find($id);
         } else
-            $user = User::find(auth()->user()->user_id);
-        $hasLike = $user->likes()->where('likes.blog_id', $blog_id)->exists();
+            $user = User::find(Auth::user()->id);
+        $hasLike = $user->likes()->where('likes.post_id', $post_id)->exists();
         if (!$hasLike) {
-            $user->likes()->attach($blog_id);
+            $user->likes()->attach($post_id);
         } else {
-            $user->likes()->detach($blog_id);
+            $user->likes()->detach($post_id);
         }
         if (!$request->expectsJson())
             return back();
     }
     public function isLiked(Request $request)
     {
-        $blog_id = $request->blog_id;
-        $id = auth('sanctum')->user()->user_id;
+        $post_id = $request->post_id;
+        $id = auth('sanctum')->user()->id;
         $user = User::find($id);
-        $hasLike = $user->likes()->where('likes.blog_id', $blog_id)->exists();
+        $hasLike = $user->likes()->where('likes.post_id', $post_id)->exists();
         if ($hasLike) {
             return response()->json(true);
         } else {
@@ -92,17 +92,17 @@ class BlogController extends Controller
 
     public function bookmark(Request $request)
     {
-        $blog_id = $request->blog_id;
+        $post_id = $request->post_id;
         if ($request->expectsJson() && auth('sanctum')->check()) {
-            $id = auth('sanctum')->user()->user_id;
+            $id = auth('sanctum')->user()->id;
             $user = User::find($id);
         } else
-            $user = User::find(auth()->user()->user_id);
-        $hasBookmark = $user->bookmarks()->where('bookmarks.blog_id', $blog_id)->exists();
+            $user = User::find(Auth::user()->id);
+        $hasBookmark = $user->bookmarks()->where('bookmarks.post_id', $post_id)->exists();
         if (!$hasBookmark) {
-            $user->bookmarks()->attach($blog_id);
+            $user->bookmarks()->attach($post_id);
         } else {
-            $user->bookmarks()->detach($blog_id);
+            $user->bookmarks()->detach($post_id);
         }
         if (!$request->expectsJson())
             return back();
@@ -110,10 +110,10 @@ class BlogController extends Controller
 
     public function isBookmarked(Request $request)
     {
-        $blog_id = $request->blog_id;
-        $id = auth('sanctum')->user()->user_id;
+        $post_id = $request->post_id;
+        $id = auth('sanctum')->user()->id;
         $user = User::find($id);
-        $hasBookmark = $user->bookmarks()->where('bookmarks.blog_id', $blog_id)->exists();
+        $hasBookmark = $user->bookmarks()->where('bookmarks.post_id', $post_id)->exists();
         if ($hasBookmark) {
             return response()->json(true);
         } else {
@@ -123,11 +123,11 @@ class BlogController extends Controller
 
     public function bookmarkList(Request $request)
     {
-        $blogs = User::find(auth()->user()->user_id)->bookmarks()->orderBy('bookmarks.created_at', 'desc')->paginate(10);
+        $posts = User::find(Auth::user()->id)->bookmarks()->orderBy('bookmarks.created_at', 'desc')->paginate(10);
         if ($request->expectsJson()) {
-            return response()->json($blogs);
+            return response()->json($posts);
         } else {
-            return view('client.bookmark', compact('blogs'));
+            return view('client.bookmark', compact('posts'));
         }
     }
 }

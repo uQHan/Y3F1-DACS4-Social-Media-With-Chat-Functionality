@@ -52,15 +52,15 @@ class UserSettingsController extends Controller
             $imagePath = "placeholder.png";
         }
 
-        UserSettings::create([
-            'user_id' => $request->user()->user_id,
-            'username' => $request->username,
-            'dob' => $dob,
-            'gender' => $request->gender,
-            'pfp_url' => $imagePath,
-            'bio' => $request->bio,
-            'website' => $request->website
-        ]);
+        // UserSettings::create([
+        //     'user_id' => $request->user()->user_id,
+        //     'username' => $request->username,
+        //     'dob' => $dob,
+        //     'gender' => $request->gender,
+        //     'pfp_url' => $imagePath,
+        //     'bio' => $request->bio,
+        //     'website' => $request->website
+        // ]);
         if ($request->expectsJson()){
             return response();
         } else {
@@ -99,14 +99,14 @@ class UserSettingsController extends Controller
             $imagePath = $request->user()->settings->pfp_url;
         }
 
-        UserSettings::where('user_id', $request->user()->user_id)->update([
-            'username' => $request->username,
-            'dob' => $dob,
-            'gender' => $request->gender,
-            'pfp_url' => $imagePath,
-            'bio' => $request->bio,
-            'website' => $request->website
-        ]);
+        // UserSettings::where('user_id', $request->user()->user_id)->update([
+        //     'username' => $request->username,
+        //     'dob' => $dob,
+        //     'gender' => $request->gender,
+        //     'pfp_url' => $imagePath,
+        //     'bio' => $request->bio,
+        //     'website' => $request->website
+        // ]);
         if ($request->expectsJson()){
             return response();
         } else {
