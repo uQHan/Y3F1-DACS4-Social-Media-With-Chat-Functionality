@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->tinyText('name');
             $table->foreignId('leader_id')->constrained('users');
+            $table->boolean('is_joinable')->default(true);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

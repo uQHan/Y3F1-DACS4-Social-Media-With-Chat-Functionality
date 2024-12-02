@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('message_recipients', function (Blueprint $table) {
             $table->foreignId('message_id')->constrained();
-            $table->foreignId('recipient_id')->constrained('message_recipients');
+            $table->foreignId('recipient_id')->constrained('users');
             $table->foreignId('recipient_group_id')->nullable()->constrained('groups');
             $table->boolean('is_read')->default(false);
             $table->timestamps();

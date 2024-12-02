@@ -18,7 +18,7 @@ return new class extends Migration
             $table->tinyText('content');
             $table->tinyText('image_url');
             $table->foreignId('parent_comment_id')->nullable()->constrained('comments');
-            $table->boolean('status')->default('live');
+            $table->tinyText('status')->default('live');
             $table->timestamps();
         });
     }
