@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -27,7 +28,7 @@ class CommentController extends Controller
         if ($request->expectsJson()){
             $id = auth('sanctum')->user()->user_id;
         } else {
-            $id = auth()->user()->user_id;         
+            $id = Auth::user()->user_id;         
         }
         Comment::create([
             "user_id" => $id,
