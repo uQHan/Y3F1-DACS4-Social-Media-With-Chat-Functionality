@@ -17,23 +17,20 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(5);
-        if ($request->expectsJson()) {
-            return response()->json($posts);
-        } else {
-            return view('client.home', compact('posts'));
-        }
+        return view('dashboard', compact('posts'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'postTitle' => 'string|required',
-            'postText' => 'string|nullable',
-            'postImage' => 'image|max:2048|nullable'
+            'title' => 'string|required|max:255',
+            'content' => 'string|nullable',
+            'image' => 'image|max:2048|nullable',
+            'type' => 'string|required'
         ]);
 
-        if ($request->hasFile('postImage')) {
-            $get_file_image = $request->file('postImage');
+        if ($request->hasFile('image')) {
+            $get_file_image = $request->file('image');
             $get_image_name = $get_file_image->getClientOriginalName();
             $get_image_extension = $get_file_image->getClientOriginalExtension();
             $image_name = current(explode('.', $get_image_name));
@@ -42,84 +39,44 @@ class PostController extends Controller
         } else {
             $imagePath = null;
         }
-        if ($request->expectsJson()){
-            $id = auth('sanctum')->user()->id;
-        } else {
-            $id = Auth::user()->id;         
-        }
+
         Post::create([
-            "creator_id" => $id,
-            "title" => $request->postTitle,
-            "content" => $request->postText,
+            "creator_id" => Auth::user()->id,
+            "type" => $request->type,
+            "title" => $request->title,
+            "content" => $request->content,
             "image_url" => $imagePath,
         ]);
-        if ($request->expectsJson()) {
-            return response();
-        } else {
-            return back();
-        }
+        return back();
     }
 
-    public function like(Request $request)
-    {
-        $post_id = $request->post_id;
-        if ($request->expectsJson() && auth('sanctum')->check()) {
-            $id = auth('sanctum')->user()->id;
-            $user = User::find($id);
-        } else
-            $user = User::find(Auth::user()->id);
-        $hasLike = $user->likes()->where('likes.post_id', $post_id)->exists();
-        if (!$hasLike) {
-            $user->likes()->attach($post_id);
-        } else {
-            $user->likes()->detach($post_id);
-        }
-        if (!$request->expectsJson())
-            return back();
-    }
-    public function isLiked(Request $request)
-    {
-        $post_id = $request->post_id;
-        $id = auth('sanctum')->user()->id;
-        $user = User::find($id);
-        $hasLike = $user->likes()->where('likes.post_id', $post_id)->exists();
-        if ($hasLike) {
-            return response()->json(true);
-        } else {
-            return response()->json(false);
-        }
-    }
+    // public function toggleLike(Request $request)
+    // {
+    //     $id = Auth::id();
+    //     $post = Post::find($request->post_id);
 
-    public function bookmark(Request $request)
-    {
-        $post_id = $request->post_id;
-        if ($request->expectsJson() && auth('sanctum')->check()) {
-            $id = auth('sanctum')->user()->id;
-            $user = User::find($id);
-        } else
-            $user = User::find(Auth::user()->id);
-        $hasBookmark = $user->bookmarks()->where('bookmarks.post_id', $post_id)->exists();
-        if (!$hasBookmark) {
-            $user->bookmarks()->attach($post_id);
-        } else {
-            $user->bookmarks()->detach($post_id);
-        }
-        if (!$request->expectsJson())
-            return back();
-    }
+    //     if ($request->liked) {
+    //         // Unlike the post
+    //         $post->likes()->detach($id);
+    //     } else {
+    //         // Like the post
+    //         $post->likes()->attach($id);
+    //     }
+    // }
 
-    public function isBookmarked(Request $request)
-    {
-        $post_id = $request->post_id;
-        $id = auth('sanctum')->user()->id;
-        $user = User::find($id);
-        $hasBookmark = $user->bookmarks()->where('bookmarks.post_id', $post_id)->exists();
-        if ($hasBookmark) {
-            return response()->json(true);
-        } else {
-            return response()->json(false);
-        }
-    }
+    // public function toggleBookmark(Request $request)
+    // {
+    //     $id = Auth::id();
+    //     $post = Post::find($request->post_id);
+
+    //     if ($request->bookmarked) {
+    //         // Unbookmark the post
+    //         $post->bookmarks()->detach($id);
+    //     } else {
+    //         // Bookmark the post
+    //         $post->bookmarks()->attach($id);
+    //     }
+    // }
 
     public function bookmarkList(Request $request)
     {
