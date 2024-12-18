@@ -37,7 +37,7 @@
         </main>
     </div>
     <script src="{{ asset('js/jscroll.js') }}"></script>
-    <script src="{{ asset('js/jquerry.js') }}"></script>
+    <script src="{{ asset('js/jquery.js') }}"></script>
     @livewireScripts
 </body>
 

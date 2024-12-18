@@ -41,15 +41,13 @@ $creator_name = $user->name;
         @endif
 
         <!-- Interactions -->
-        <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 mt-4 space-x-8" x-data="{ 
-            bookmarked: false, 
+        <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 mt-4 space-x-8" x-data="{  
             commentCount: {{ $post->comments->count() }}, 
-            bookmarkCount: {{ $post->bookmarks->count() }} 
           }">
           <div class="flex justify-statrt space-x-8">
             <!-- Like Button -->
             <div>
-              <livewire:interactive-button :item="$post" type="like" />
+              <livewire:interactive-button :item="$post" type="like" :key="$post->id" />
             </div>
 
 
@@ -63,12 +61,9 @@ $creator_name = $user->name;
           </div>
 
           <!-- Bookmark Button -->
-          <button @click="bookmarked = !bookmarked; bookmarked ? bookmarkCount++ : bookmarkCount--"
-            :class="bookmarked ? 'text-blue-500 dark:text-blue-400' : ''"
-            class="flex items-center hover:text-blue-500 dark:hover:text-blue-400">
-            <i class="far fa-bookmark" :class="bookmarked ? 'fas fa-bookmark' : ''"></i>
-            <span class="ml-2" x-text="bookmarkCount"></span>
-          </button>
+          <div>
+            <livewire:interactive-button :item="$post" type="bookmark" :key="$post->id" />
+          </div>
         </div>
 
         <!-- Comment List -->

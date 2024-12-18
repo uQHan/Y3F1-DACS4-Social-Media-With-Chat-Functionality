@@ -27,7 +27,6 @@ class InteractiveButton extends Component
 
     public function toggleAction()
     {
-        echo("<script>console.log('damned');</script>");
         if ($this->isActive) {
             $this->item->{$this->type . 's'}()->detach(Auth::id());
             $this->isActive = false;
@@ -37,6 +36,7 @@ class InteractiveButton extends Component
             $this->isActive = true;
             $this->count++;
         }
+        $this->dispatch($this->count);
     }
 
     public function render()

@@ -1,7 +1,7 @@
 @props(['posts'])
 <div class="scrolling-pagination space-y-2">
     @foreach($posts as $post)
-    <x-post-form :post="$post" />
+    <x-post-form :post="$post" wire:key="{{ $post->id }}"/>
     @endforeach
     {{ $posts->links() }}
 </div>
