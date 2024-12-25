@@ -26,9 +26,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class, 'creator_id');
     }
-    public function messages(): HasMany
+    public function created_messages(): HasMany
     {
         return $this->hasMany(Message::class, 'creator_id');
+    }
+    public function messages()
+    {
+        return $this->hasMany(MessageRecipient::class, 'creator_id')->orWhere('recipient_id', $this->id);
     }
     public function groups_created(): HasMany
     {
@@ -74,6 +78,7 @@ class User extends Authenticatable
         'bio',
         'addess',
         'website',
+        'last_online',
     ];
 
     /**

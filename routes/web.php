@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\MessageSent;
+use App\Http\Controllers\Client\ChatController;
 use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\EditProfileController;
 use App\Http\Controllers\Client\PostController;
@@ -17,16 +19,22 @@ Route::get('/', function () {
 Route::get('/dashboard', [PostController::class, 'index'])
     ->middleware('auth')->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','online'])->group(function () {
+    Route::get('/chatroom', [ChatController::class, 'index'])->name('chat');
+    
     Route::get('/edit-profile', [EditProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/edit-profile', [EditProfileController::class, 'update'])->name('profile.update');
     Route::delete('/edit-profile', [EditProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 
-    Route::post('/post-post', [PostController::class, 'store'])->name('post.post');
+    Route::post('/post/post', [PostController::class, 'store'])->name('post.post');
     Route::post('/post/{id}/comment', [CommentController::class, 'store'])->name('post.comment');
-    Route::post('/post/{id}/like', [PostController::class, 'toggleLike'])->name('post.like');
+    Route::post('/post/destroy', [CommentController::class, 'destroy'])->name('post.destroy');
+
+    Route::get('/broadcast', function () {
+        broadcast(new MessageSent(2,1,null));
+    });
 });
 
 require __DIR__ . '/auth.php';

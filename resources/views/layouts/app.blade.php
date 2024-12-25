@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'REUW') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -36,8 +36,26 @@
             {{ $slot }}
         </main>
     </div>
-    <script src="{{ asset('js/jscroll.js') }}"></script>
-    <script src="{{ asset('js/jquery.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    {{-- <script src="//unpkg.com/jscroll/dist/jquery.jscroll.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Hide pagination initially
+            $('ul.pagination').hide();
+
+            // Initialize jScroll with a corrected selector
+            $('.scrolling-pagination').jscroll({
+                autoTrigger: true,  // Automatically trigger load when you reach the bottom
+                padding: 0,
+                nextSelector: '.pagination a[rel="next"]', // Use the `rel="next"` attribute to target the Next link
+                contentSelector: '.scrolling-pagination', // Content to load more posts into
+                callback: function() {
+                    // After loading more posts, remove pagination links
+                    $('ul.pagination').remove();
+                }
+            });
+        });
+    </script> --}}
     @livewireScripts
 </body>
 

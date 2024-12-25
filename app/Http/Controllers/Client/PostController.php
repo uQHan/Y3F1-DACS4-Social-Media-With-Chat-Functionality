@@ -17,6 +17,11 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(5);
+
+        if ($request->ajax()) {
+            return view('components/posts-partials', compact('posts')); // Return the view containing the new posts
+        }
+
         return view('dashboard', compact('posts'));
     }
 
@@ -50,34 +55,6 @@ class PostController extends Controller
         return back();
     }
 
-    // public function toggleLike(Request $request)
-    // {
-    //     $id = Auth::id();
-    //     $post = Post::find($request->post_id);
-
-    //     if ($request->liked) {
-    //         // Unlike the post
-    //         $post->likes()->detach($id);
-    //     } else {
-    //         // Like the post
-    //         $post->likes()->attach($id);
-    //     }
-    // }
-
-    // public function toggleBookmark(Request $request)
-    // {
-    //     $id = Auth::id();
-    //     $post = Post::find($request->post_id);
-
-    //     if ($request->bookmarked) {
-    //         // Unbookmark the post
-    //         $post->bookmarks()->detach($id);
-    //     } else {
-    //         // Bookmark the post
-    //         $post->bookmarks()->attach($id);
-    //     }
-    // }
-
     public function bookmarkList(Request $request)
     {
         $posts = User::find(Auth::user()->id)->bookmarks()->orderBy('bookmarks.created_at', 'desc')->paginate(10);
@@ -85,6 +62,16 @@ class PostController extends Controller
             return response()->json($posts);
         } else {
             return view('client.bookmark', compact('posts'));
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $post = Post::find($request->post_id);
+
+        if ($post->creator_id == Auth::id()){
+            $post->status = 'deleted';
+            $post->save();
         }
     }
 }

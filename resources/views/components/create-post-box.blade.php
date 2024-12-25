@@ -1,9 +1,34 @@
-<div id="createPostContainer"
-    class="relative max-w-xl mx-auto bg-white dark:bg-gray-800 border sm:border-0 sm:border-gray-300 dark:sm:border-gray-700 sm:rounded-lg shadow-md p-4 min-w-[400px]">
+@php
+$user = Auth::user();
+@endphp
+<div x-data="{
+        isExpanded: @if($errors->any()) true @else false @endif,
+        title: '',
+        content: '',
+        image: null,
+        isMinimizable() {
+            return !this.title && !this.content && !this.image;
+        },
+        previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    this.image = reader.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        clearImagePreview() {
+            this.image = null;
+        }
+    }"
+    class="relative max-w-xl mx-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-md p-4 min-w-[400px]">
+    
     <!-- Initial Minimized View -->
-    <div id="collapsedPostBox" class="cursor-pointer" onclick="expandPostBox()">
+    <div x-show="!isExpanded" id="collapsedPostBox" class="cursor-pointer" @click="isExpanded = true">
         <div class="flex items-center gap-2">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="w-12 h-12 rounded-full" />
+            <img src="{{ asset('client/pfp/'.$user->pfp_url)}}" alt="User Avatar" class="w-12 h-12 rounded-full" />
             <input type="text" id="postTitleCollapsed"
                 class="w-full p-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none"
                 placeholder="What's on your mind?" readonly />
@@ -11,17 +36,16 @@
     </div>
 
     <!-- Full Expanded Form -->
-    <form id="expandedPostBox" class="hidden mt-4" method="POST" action="{{ route('post.post')}}"
-        enctype="multipart/form-data" onfocusout="checkFocusOut(event)">
+    <form x-show="isExpanded" id="expandedPostBox" class="mt-4" method="POST" action="{{ route('post.post') }}" enctype="multipart/form-data" @focusout="if (isMinimizable()) isExpanded = false">
         @csrf
         <!-- Header: User Info -->
         <div class="flex items-start gap-2">
-            <img src="https://via.placeholder.com/50" alt="User Avatar" class="w-12 h-12 rounded-full" />
+            <img src="{{ asset('client/pfp/'.$user->pfp_url)}}" alt="User Avatar" class="w-12 h-12 rounded-full" />
             <div class="flex flex-col w-full">
-                <span class="font-bold text-gray-900 dark:text-gray-100">John Doe</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100">{{ $user->name }}</span>
 
                 <!-- Title Input for Post -->
-                <input type="text" name="title" id="title"
+                <input type="text" name="title" x-model="title"
                     class="w-full p-2 mt-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter post title" required />
                 <x-input-error :messages="$errors->get('title')" class="mt-2" />
@@ -38,7 +62,7 @@
                 <x-input-error :messages="$errors->get('type')" class="mt-2" />
 
                 <!-- Textarea for Post Content -->
-                <textarea id="postContent" name="content"
+                <textarea id="postContent" name="content" x-model="content"
                     class="w-full p-2 mt-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows="4" placeholder="What's on your mind?" required></textarea>
                 <x-input-error :messages="$errors->get('content')" class="mt-2" />
@@ -46,7 +70,7 @@
                 <!-- Image Upload and Post Button Container -->
                 <div class="flex items-center justify-between mt-3">
                     <!-- Add Image Button -->
-                    <button type="button" onclick="document.getElementById('imageUpload').click()"
+                    <button type="button" @click="$refs.imageUpload.click()"
                         class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                         <i class="fas fa-camera"></i> Add Image
                     </button>
@@ -58,14 +82,13 @@
                     </x-primary-button>
 
                     <!-- Hidden Image Input -->
-                    <input type="file" id="imageUpload" name="image" class="hidden" accept="image/*"
-                        onchange="previewImage()" />
+                    <input type="file" x-ref="imageUpload" id="imageUpload" name="image" class="hidden" accept="image/*" @change="previewImage" />
                 </div>
 
                 <!-- Image Preview -->
-                <div id="imagePreviewContainer" class="mt-4 hidden">
-                    <img id="imagePreview" src="" alt="Image Preview" class="w-full rounded-lg shadow-md" />
-                    <button type="button" class="text-red-500 mt-2 hover:text-red-700" onclick="clearImagePreview()">
+                <div x-show="image" id="imagePreviewContainer" class="mt-4">
+                    <img :src="image" alt="Image Preview" class="w-full rounded-lg shadow-md" />
+                    <button type="button" class="text-red-500 mt-2 hover:text-red-700" @click="clearImagePreview">
                         Remove Image
                     </button>
                 </div>
@@ -73,54 +96,3 @@
         </div>
     </form>
 </div>
-
-
-<script>
-    // <!-- JavaScript for Box Sizing -->
-    function expandPostBox() {
-    document.getElementById('collapsedPostBox').classList.add('hidden');
-    document.getElementById('expandedPostBox').classList.remove('hidden');
-    setTimeout(() => {
-        document.getElementById("title").focus();
-    }, 0);
-    }
-
-    function checkFocusOut(event) {
-    const expandedPostBox = document.getElementById("expandedPostBox");
-    if (!expandedPostBox.contains(event.relatedTarget)) {
-      minimizePostBox();
-    }
-    }
-
-    function minimizePostBox() {
-    document.getElementById("collapsedPostBox").classList.remove("hidden");
-    document.getElementById("expandedPostBox").classList.add("hidden");
-    }
-
-    // <!-- JavaScript for Image Preview -->
-    function previewImage() {
-      const fileInput = document.getElementById('imageUpload');
-      const file = fileInput.files[0];
-      const previewContainer = document.getElementById('imagePreviewContainer');
-      const previewImage = document.getElementById('imagePreview');
-  
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          previewImage.src = e.target.result; // Set image source
-          previewContainer.classList.remove('hidden'); // Show the preview container
-        };
-        reader.readAsDataURL(file); // Convert image to data URL
-      }
-    }
-  
-    function clearImagePreview() {
-      const fileInput = document.getElementById('imageUpload');
-      const previewContainer = document.getElementById('imagePreviewContainer');
-      const previewImage = document.getElementById('imagePreview');
-  
-      fileInput.value = ''; // Clear the file input
-      previewImage.src = ''; // Clear the preview image source
-      previewContainer.classList.add('hidden'); // Hide the preview container
-    }
-</script>
