@@ -14,7 +14,7 @@ class Chat extends Component
 {
     public $content;
     public $recipient;
-    public $group;
+    public $group = null;
     public $history = [];
     public $userId;
     public $authId;
@@ -26,21 +26,35 @@ class Chat extends Component
     {
         $this->authId = Auth::id();
     }
+    public function getListeners()
+    {
+        return [
+            "loadMessages" => 'loadMessages',
+            "echo-private:chat.{$this->authId},MessageSent" => 'onMessageSent',
+        ];
+    }
+
+    public function onMessageSent($event)
+    {
+        if ($this->userId == $event['message']['creator_id'] ?? null) {
+            $this->userId = (string) ($event['message']['creator_id'] ?? null);
+            $this->loadMessages($this->userId);
+        }
+    }
 
     // Load chat messages when a user is selected
-    #[On('loadMessages', 'echo:chat.{authId},MessageSent')]
     public function loadMessages($userId)
     {
         $this->userId = $userId;
         // Get messages between the current user and the selected user
         $this->history = Message::join('message_recipients', 'messages.id', '=', 'message_recipients.message_id')
             ->where(function ($query) use ($userId) {
-                $query->where('messages.creator_id', Auth::id())
+                $query->where('messages.creator_id', $this->authId)
                     ->where('message_recipients.recipient_id', $userId);
             })
             ->orWhere(function ($query) use ($userId) {
                 $query->where('messages.creator_id', $userId)
-                    ->where('message_recipients.recipient_id', Auth::id());
+                    ->where('message_recipients.recipient_id', $this->authId);
             })
             ->select(
                 'messages.*',
@@ -48,7 +62,7 @@ class Chat extends Component
             )
             ->orderBy('messages.created_at', 'asc')
             ->get();
-        $this->dispatch('messageSent');
+        $this->dispatch('messagesent');
     }
 
     // Send message
@@ -61,12 +75,11 @@ class Chat extends Component
             if (!$message) {
                 throw new \Exception("Failed to create message.");
             }
-            MessageRecipient::create(['message_id' => $message->id, 'recipient_id' => $this->userId, 'recipient_group_id' => $this->group]);
-            broadcast(new MessageSent($message, $this->userId, $this->group));
+            MessageRecipient::create(['message_id' => $message->id, 'recipient_id' => $this->userId]);
+            broadcast(new MessageSent($message, $this->userId));
         });
         $this->content = '';
         $this->loadMessages($this->userId);
-        $this->dispatch('messageSent');
     }
     public function render()
     {

@@ -2,14 +2,18 @@
     @if ($userId)
     <!-- Chat Header -->
     <div class="flex items-center justify-between border-b border-gray-300 dark:border-gray-700 p-4">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Chat with User {{ $userId }}</h3>
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ Auth::user($userId)->name }}</h3>
     </div>
 
     <!-- Chat Messages -->
-    <div x-data="{ scrollToBottom() { $refs.messagesContainer.scrollTop = $refs.messagesContainer.scrollHeight; } }"
-        x-init="scrollToBottom()" 
-        x-on:messageSent.window="scrollToBottom()"
-        x-ref="messagesContainer" 
+    <div x-data="{ 
+        history: @entangle('history'), 
+        scrollToBottom() { 
+            $nextTick(() => {
+                $refs.messagesContainer.scrollTop = $refs.messagesContainer.scrollHeight; 
+            });
+        } 
+    }" x-init="scrollToBottom()" x-watch="history" x-on:messagesent.window="scrollToBottom()" x-ref="messagesContainer"
         class="flex-1 mt-4 space-y-4 overflow-y-auto p-4">
         @foreach ($history as $message)
         @if($message->creator_id == Auth::id())
@@ -36,7 +40,8 @@
     <div class="mt-4 flex items-end p-4 self-end w-full">
         <div class="flex-1 flex flex-col self-end">
             <x-input-error :messages="$errors->get('content')" class="mt-2" />
-            <input type="text" placeholder="Write a message here..." wire:model="content" wire:keydown.enter="sendMessage()"
+            <input type="text" placeholder="Write a message here..." wire:model="content"
+                wire:keydown.enter="sendMessage()"
                 class="flex-1 px-4 py-2 border rounded-lg border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
         </div>

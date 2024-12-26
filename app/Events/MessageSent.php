@@ -6,24 +6,25 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
-class MessageSent implements ShouldBroadcastNow
+class MessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    public $recipient;
+    public $userId;
     public $group;
 
-    public function __construct($message, $recipient, $group)
-    {
-        $this->message = $message;
-        $this->recipient = $recipient;
-        $this->group = $group;
-    }
+    public function __construct($message, $recipient, $group = null)
+{
+    $this->message = $message;
+    $this->userId = $recipient;
+    $this->group = $group;
+}
 
 
     /**
@@ -34,15 +35,14 @@ class MessageSent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('chat.'.$this->recipient),
+            new PrivateChannel('chat.'.$this->userId),
         ];
     }
 
     public function broadcastWith()
     {
-        return [
+        logger('Broadcast payload:', [
             'message' => $this->message,
-            'userId' => Auth::id()
-        ];
+        ]);
     }
 }
