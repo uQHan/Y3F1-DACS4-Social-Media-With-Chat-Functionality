@@ -3,11 +3,11 @@
 $creator = $post->creator;
 @endphp
 <div
-  class="relative max-w-xl mx-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-md p-4">
+  class="relative w-full mx-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 sm:rounded-lg shadow-md p-4">
   <div class="flex items-start justify-between">
     <!-- Avatar -->
     <div class="flex items-start gap-2 flex-1">
-      <img src={{ asset('client/pfp/'.Auth::user()->pfp_url)}} alt="User Avatar" class="w-12 h-12 rounded-full" />
+      <img src={{ asset('client/pfp/'.$creator->pfp_url)}} alt="User Avatar" class="w-12 h-12 rounded-full" />
 
       <!-- Content -->
       <div x-data="{commentsVisible: false}" class="flex-1">

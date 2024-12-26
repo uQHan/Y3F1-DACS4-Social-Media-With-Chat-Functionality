@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('pfp_url', 255)->nullable()->default('default-pfp.jpg');
             $table->tinyText('gender')->nullable();
             $table->tinyText('bio')->nullable();
-            $table->tinyText('addess')->nullable();
+            $table->tinyText('address')->nullable();
             $table->tinyText('website')->nullable();
             $table->rememberToken();
             $table->timestamps();

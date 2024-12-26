@@ -23,7 +23,7 @@ $user = Auth::user();
             this.image = null;
         }
     }"
-    class="relative max-w-xl mx-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-md p-4 min-w-[400px]">
+    class="relative w-full mx-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 sm:rounded-lg sm:shadow-md p-4 min-w-[400px] mb-2">
     
     <!-- Initial Minimized View -->
     <div x-show="!isExpanded" id="collapsedPostBox" class="cursor-pointer" @click="isExpanded = true">

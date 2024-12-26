@@ -6,6 +6,7 @@ use App\Events\MessageSent;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageRecipient;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -18,6 +19,7 @@ class Chat extends Component
     public $group = null;
     public $history = [];
     public $userId;
+    public $user;
     public $authId;
     protected $rules = [
         'content' => 'required|string|max:255',
@@ -55,6 +57,8 @@ class Chat extends Component
     public function loadMessages($userId)
     {
         $this->userId = $userId;
+        $this->user = User::find($userId);
+
         // Get messages between the current user and the selected user
         $this->history = Message::join('message_recipients', 'messages.id', '=', 'message_recipients.message_id')
             ->where(function ($query) use ($userId) {

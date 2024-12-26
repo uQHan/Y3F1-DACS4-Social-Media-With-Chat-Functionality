@@ -2,7 +2,8 @@
     @if ($userId)
     <!-- Chat Header -->
     <div class="flex items-center justify-between border-b border-gray-300 dark:border-gray-700 p-4">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ Auth::user($userId)->name }}</h3>
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ $user->name }}</h3>
+        <img src={{ asset('client/pfp/'.$user->pfp_url)}} alt="User Avatar" class="w-12 h-12 rounded-full" />
     </div>
 
     <!-- Chat Messages -->
@@ -55,7 +56,7 @@
         <div class="text-center">
             <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-300">Select a user to start chatting.</h3>
             <h1>
-                <i class="far fa-envelope fa-10x text-gray-700"></i>
+                <i class="fas fa-comment-dots fa-10x text-gray-700"></i>
             </h1>
         </div>
     </div>
