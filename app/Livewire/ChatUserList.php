@@ -10,8 +10,11 @@ class ChatUserList extends Component
     public function mount($users){
         $this->users = $users;
     }
-    public function loadUser($id){
+    public function loadUsers($id){
         $this->dispatch('loadMessages', $id);
+    }
+    public function loadGroups($id){
+        $this->dispatch('loadGroupMessages', $id);
     }
     public function render()
     {

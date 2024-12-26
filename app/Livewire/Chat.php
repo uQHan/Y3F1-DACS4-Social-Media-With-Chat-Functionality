@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Events\MessageSent;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageRecipient;
 use Illuminate\Support\Facades\Auth;
@@ -31,14 +32,22 @@ class Chat extends Component
         return [
             "loadMessages" => 'loadMessages',
             "echo-private:chat.{$this->authId},MessageSent" => 'onMessageSent',
+            "loadGroupMessages" => 'loadGroupMessages',
+            "echo-presence:groupchat.{$this->group},MessageSent" => 'onGroupMessageSent',
         ];
     }
 
     public function onMessageSent($event)
     {
-        if ($this->userId == $event['message']['creator_id'] ?? null) {
-            $this->userId = (string) ($event['message']['creator_id'] ?? null);
+        if ($this->userId == $event['message']['creator_id']) {
             $this->loadMessages($this->userId);
+        }
+    }
+
+    public function onGroupMessageSent($event)
+    {
+        if ($this->group == $event['group']) {
+            $this->loadGroupMessages($this->group);
         }
     }
 
@@ -58,11 +67,23 @@ class Chat extends Component
             })
             ->select(
                 'messages.*',
-                'message_recipients.*'
+                'message_recipients.recipient_group_id'
             )
             ->orderBy('messages.created_at', 'asc')
             ->get();
-        $this->dispatch('messagesent');
+        // $this->dispatch('latestMessage');
+    }
+
+    // Load chat messages when a group is selected
+    public function loadGroupMessages($group)
+    {
+        $this->group = $group;
+        // Get messages between the current user and the selected user
+        $this->history = Message::join('message_recipients', 'messages.id', '=', 'message_recipients.message_id')
+            ->where('message_recipients.recipient_group_id', $group)
+            ->select('messages.*', 'message_recipients.recipient_group_id')
+            ->orderBy('messages.created_at', 'asc')
+            ->get();
     }
 
     // Send message
@@ -71,16 +92,48 @@ class Chat extends Component
         $this->validate();
 
         DB::transaction(function () {
+            // Create the message
             $message = Message::create(['content' => $this->content, 'creator_id' => Auth::id()]);
             if (!$message) {
                 throw new \Exception("Failed to create message.");
             }
-            MessageRecipient::create(['message_id' => $message->id, 'recipient_id' => $this->userId]);
-            broadcast(new MessageSent($message, $this->userId));
+
+            // Create recipients for group users
+            if ($this->group) {
+                $group = Group::with('users')->findOrFail($this->group);
+
+                // Prepare recipients for group
+                $recipients = $group->users->map(function ($user) use ($message) {
+                    return [
+                        'message_id' => $message->id, // Ensure $message is accessible
+                        'recipient_id' => $user->id,
+                        'recipient_group_id' => $this->group,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                });
+
+                // Insert all group recipients
+                MessageRecipient::insert($recipients->toArray());
+            }
+
+            // Create recipient for individual user
+            if ($this->userId) {
+                MessageRecipient::create([
+                    'message_id' => $message->id,
+                    'recipient_id' => $this->userId,
+                ]);
+            }
+
+            // Broadcast the event
+            broadcast(new MessageSent($message, $this->userId, $this->group));
         });
+
+        // Clear input and reload messages
         $this->content = '';
         $this->loadMessages($this->userId);
     }
+
     public function render()
     {
         return view('livewire.chat');

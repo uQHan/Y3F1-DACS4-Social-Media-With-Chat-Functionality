@@ -17,13 +17,13 @@
         class="flex-1 mt-4 space-y-4 overflow-y-auto p-4">
         @foreach ($history as $message)
         @if($message->creator_id == Auth::id())
-        <div class="flex justify-end">
+        <div class="flex justify-end"  wire:key={{$message->id}}>
             <p class="break-all bg-blue-500 text-white p-3 rounded-lg max-w-xs">
                 {{ $message->content }}
             </p>
         </div>
         @else
-        <div class="flex flex-col">
+        <div class="flex flex-col" wire:key={{$message->id}}>
             <strong class="text-black dark:text-gray-200 ms-1">{{ $message->creator->name }}</strong>
             <div class="flex">
                 <p

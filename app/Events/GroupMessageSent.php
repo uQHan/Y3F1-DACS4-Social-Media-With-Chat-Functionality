@@ -3,26 +3,24 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit
+class GroupMessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    public $userId;
     public $group;
 
-    public function __construct($message, $recipient, $group = null)
-{
-    $this->message = $message;
-    $this->userId = $recipient;
-    $this->group = $group;
-}
+    public function __construct($message, $group = null)
+    {
+        $this->message = $message;
+        $this->group = $group;
+    }
 
 
     /**
@@ -33,7 +31,7 @@ class MessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('chat.'.$this->userId),
+            new PresenceChannel('chat.' . $this->group),
         ];
     }
 
@@ -41,6 +39,7 @@ class MessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit
     {
         logger('Broadcast payload:', [
             'message' => $this->message,
+            'group' => $this->group,
         ]);
     }
 }
