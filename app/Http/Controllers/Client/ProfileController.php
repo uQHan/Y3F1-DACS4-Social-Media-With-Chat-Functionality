@@ -12,26 +12,15 @@ class ProfileController extends Controller
 {
     public function index(Request $request)
     {
-        $user = User::find(Auth::user()->user_id);
-        $posts = User::find(Auth::user()->user_id)->posts()->paginate(10);
-        if ($request->expectsJson()) {
-            return response()->json(compact('user', 'posts'));
-        } else {
-            return view('client.profile', compact('user', 'posts'));
-        }
+        $user = User::find(Auth::id());
+        $posts = User::find(Auth::id())->posts()->paginate(5);
+        return view('profile.index', compact('user', 'posts'));
     }
     public function other(Request $request)
     {
-        if ($request->expectsJson()) {
-            $id = auth('sanctum')->user()->user_id;
-            $posts = Post::whereIn('user_id', $id)->with('user.settings', 'comments.user.settings')->withCount('bookmarks', 'comments', 'likes')->orderBy('created_at', 'desc')->paginate(4);
-            return response()->json(compact('user', 'posts'));
-        } else {
-            $user_id = $request->user_id;
-            $user = User::find($user_id);
-            $posts = User::find($user_id)->posts()->paginate(10);
-            return view('client.profile', compact('user', 'posts'));
-        }
+        $user = User::find($request->id);
+        $posts = User::find($request->id)->posts()->paginate(5);
+        return view('profile.index', compact('user', 'posts'));
     }
     public function settings()
     {

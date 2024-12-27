@@ -75,7 +75,7 @@ class Chat extends Component
             )
             ->orderBy('messages.created_at', 'asc')
             ->get();
-        // $this->dispatch('latestMessage');
+        $this->dispatch('messagesent');
     }
 
     // Load chat messages when a group is selected

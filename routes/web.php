@@ -27,6 +27,7 @@ Route::middleware(['auth','online'])->group(function () {
     Route::delete('/edit-profile', [EditProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/{id}', [ProfileController::class, 'other'])->name('profile.other');
 
     Route::post('/post/post', [PostController::class, 'store'])->name('post.post');
     Route::post('/post/{id}/comment', [CommentController::class, 'store'])->name('post.comment');

@@ -61,4 +61,22 @@
         </div>
     </div>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for the custom 'messagesent' event
+            Livewire.on('messagesent', function(event) {
+                console.log('Message sent:', event.detail); // Log the event detail if needed
+                scrollToBottom();
+            });
+        });
+    
+        // Function to scroll to the bottom of the messages container
+        function scrollToBottom() {
+            const messagesContainer = document.querySelector('[x-ref="messagesContainer"]');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+    </script>
 </div>

@@ -12,7 +12,7 @@
         <div class="p-0 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg lg:col-span-2">
           <div class="w-full">
             <x-create-post-box />
-            <x-post-list :posts="$posts" />
+            <x-post-list :posts="$posts" route="/dashboard" />
           </div>
         </div>
 

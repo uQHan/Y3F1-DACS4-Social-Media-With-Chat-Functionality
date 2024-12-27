@@ -7,20 +7,24 @@ $creator = $post->creator;
   <div class="flex items-start justify-between">
     <!-- Avatar -->
     <div class="flex items-start gap-2 flex-1">
-      <img src={{ asset('client/pfp/'.$creator->pfp_url)}} alt="User Avatar" class="w-12 h-12 rounded-full" />
+      <a href={{ route('profile.other', $creator->id) }} >
+        <img src={{ asset('client/pfp/'.$creator->pfp_url)}} alt="User Avatar" class="w-12 h-12 rounded-full" />
+      </a>
 
       <!-- Content -->
       <div x-data="{commentsVisible: false}" class="flex-1">
         <!-- Header -->
         <div class="flex flex-col items-start">
-          <span class="font-bold text-gray-900 dark:text-gray-100">{{ $creator->name }}</span>
-          <div class="flex items-center gap-2">
-            <span
-              class="text-gray-500 dark:text-gray-400">{{\Carbon\Carbon::parse($post->created_at)->format('d/m/Y')}}</span>
-            <span class="text-gray-500 dark:text-gray-400">&middot;</span>
-            <span class="text-gray-500 dark:text-gray-400 text-sm">{{$post->created_at->diffForHumans(null, false ,
-              true)}}</span>
-          </div>
+          <a href={{ route('profile.other', $creator->id) }} >
+            <span class="font-bold text-gray-900 dark:text-gray-100">{{ $creator->name }}</span>
+            <div class="flex items-center gap-2">
+              <span
+                class="text-gray-500 dark:text-gray-400">{{\Carbon\Carbon::parse($post->created_at)->format('d/m/Y')}}</span>
+              <span class="text-gray-500 dark:text-gray-400">&middot;</span>
+              <span class="text-gray-500 dark:text-gray-400 text-sm">{{$post->created_at->diffForHumans(null, false ,
+                true)}}</span>
+            </div>
+          </a>
         </div>
 
         <!-- Post Title -->
